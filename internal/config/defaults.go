@@ -85,6 +85,17 @@ var (
 		"tag":         "110",
 	}
 
+	// DefaultStatusColors are the table-output colors of the default statuses.
+	// Statuses not listed here (and not in tui.status_colors) are not colored.
+	DefaultStatusColors = map[string]string{
+		"backlog":     "242",
+		"todo":        "252",
+		"in-progress": "33",
+		"review":      "62",
+		"done":        "34",
+		"archived":    "241",
+	}
+
 	// DefaultClasses defines the default classes of service.
 	DefaultClasses = []ClassConfig{
 		{Name: "expedite", WIPLimit: 1, BypassColumnWIP: true},

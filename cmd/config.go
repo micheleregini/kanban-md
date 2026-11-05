@@ -190,6 +190,15 @@ func addExtendedConfigAccessors(accessors map[string]configAccessor) {
 	accessors["tui.age_thresholds"] = configAccessor{
 		get: func(c *config.Config) any { return c.TUI.AgeThresholds },
 	}
+	accessors["tui.status_colors"] = configAccessor{
+		get: func(c *config.Config) any {
+			m := make(map[string]string, len(c.Statuses))
+			for _, name := range c.StatusNames() {
+				m[name] = c.StatusColor(name)
+			}
+			return m
+		},
+	}
 	accessors["tui.colors"] = configAccessor{
 		get: func(c *config.Config) any {
 			m := make(map[string]string, len(config.DefaultTUIColors))

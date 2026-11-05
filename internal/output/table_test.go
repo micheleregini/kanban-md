@@ -640,7 +640,13 @@ func TestApplyColorsOverridesPriorityStyle(t *testing.T) {
 	old, oldDisabled := priorityStyles, colorDisabled
 	defer func() { priorityStyles, colorDisabled = old, oldDisabled }()
 	colorDisabled = false
-	ApplyColors(func(string) string { return "33" })
+	ApplyColors(func(string) string { return "33" }, []string{"qa"}, func(string) string { return "5" })
+	if _, ok := priorityStyles["critical"]; !ok {
+		t.Fatal("critical style missing after ApplyColors")
+	}
+	if _, ok := statusStyles["qa"]; !ok {
+		t.Error("custom status not colored")
+	}
 	if got := priorityStyles["critical"].GetForeground(); got != lipgloss.Color("33") {
 		t.Errorf("critical foreground = %v, want 33", got)
 	}

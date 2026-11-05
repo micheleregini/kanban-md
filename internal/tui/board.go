@@ -1837,7 +1837,11 @@ func (b *Board) renderColumn(colIdx int, col column, width int) (string, []cardT
 	case colIdx == b.activeCol:
 		header = activeColumnHeaderStyle.Width(width).Render(headerText)
 	default:
-		header = columnHeaderStyle.Width(width).Render(headerText)
+		style := columnHeaderStyle
+		if c := b.cfg.ConfiguredStatusColor(col.status); c != "" {
+			style = style.Foreground(lipgloss.Color(c))
+		}
+		header = style.Width(width).Render(headerText)
 	}
 
 	// Determine visible card range.

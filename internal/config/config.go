@@ -74,6 +74,24 @@ type TUIConfig struct {
 	// Colors overrides TUI colors by name (see DefaultTUIColors). Values are
 	// ANSI 256 codes ("62") or hex ("#5f5fd7"). Missing names use defaults.
 	Colors map[string]string `yaml:"colors,omitempty"`
+	// StatusColors colors a status by name in list/show output and, when set,
+	// in the TUI column header. Same value syntax as Colors.
+	StatusColors map[string]string `yaml:"status_colors,omitempty"`
+}
+
+// ConfiguredStatusColor returns the color set for status in tui.status_colors
+// (env vars expanded), or "" if none is configured.
+func (c *Config) ConfiguredStatusColor(status string) string {
+	return expandColorEnv(c.TUI.StatusColors[status])
+}
+
+// StatusColor returns the configured color for status, falling back to the
+// default for the built-in statuses; "" means no color.
+func (c *Config) StatusColor(status string) string {
+	if v := c.ConfiguredStatusColor(status); v != "" {
+		return v
+	}
+	return DefaultStatusColors[status]
 }
 
 // TUIColor returns the configured color for name, falling back to the default.
@@ -313,6 +331,11 @@ func (c *Config) validateTUI() error {
 		}
 		if v == "" {
 			return fmt.Errorf("%w: tui.colors.%s must not be empty", ErrInvalid, name)
+		}
+	}
+	for name, v := range c.TUI.StatusColors {
+		if v == "" {
+			return fmt.Errorf("%w: tui.status_colors.%s must not be empty", ErrInvalid, name)
 		}
 	}
 	for i, at := range c.TUI.AgeThresholds {

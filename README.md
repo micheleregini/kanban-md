@@ -615,16 +615,30 @@ Names (default): `column_header_fg` (252), `column_header_bg` (236),
 `blocked_border` (196), `text` (252), `dim` (241), `error` (196),
 `priority_critical` (196), `priority_high` (208), `priority_medium` (226),
 `priority_low` (242), `tab_fg` (250), `tab_bg` (238), `claim` (44).
+`list`, `show` and other table output use the same names for priorities, `dim`
+and `claim`, plus `list_header` (244) and `tag` (110). `--no-color` and
+`NO_COLOR` disable them as before.
+
+Status colors are set per status name in `tui.status_colors` and apply to
+`list`/`show` and to the TUI column header text:
+
+```yaml
+tui:
+  status_colors:
+    in-progress: "33"
+    qa: "#af5fff"
+```
+
+The default statuses keep their current table colors (`backlog` 242, `todo`
+252, `in-progress` 33, `review` 62, `done` 34, `archived` 241) and custom
+statuses are uncolored unless listed. The TUI headers are unchanged unless a
+status color is configured.
 Set one with `kanban-md config set tui.colors.active_border "#5f5fd7"`.
 
 Values can reference environment variables (`$VAR`, `${VAR}` or
 `${VAR:-fallback}`), expanded at startup and never written back. Use ANSI codes
 `0`-`15` to follow the terminal's own palette. If a value expands to an empty
-string, the default is used.
-
-`list`, `show` and other table output use the same names for priorities, `dim`
-and `claim`, plus `list_header` (244) and `tag` (110), so both views stay
-consistent. `--no-color` and `NO_COLOR` disable them as before.
+string, the default is used. See `examples/terminal-colors-demo`.
 
 ### `context`
 

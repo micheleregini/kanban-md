@@ -18,7 +18,7 @@ var (
 	headerStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("244"))
 	dimStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 
-	// Status colors aligned with TUI column-header palette.
+	// Status colors; see config.DefaultStatusColors and tui.status_colors.
 	statusStyles = map[string]lipgloss.Style{
 		"backlog":     lipgloss.NewStyle().Foreground(lipgloss.Color("242")),
 		"todo":        lipgloss.NewStyle().Foreground(lipgloss.Color("252")),
@@ -43,9 +43,10 @@ var (
 var colorDisabled bool
 
 // ApplyColors rebuilds the table styles using color, which maps a tui.colors
-// name (e.g. "priority_high") to an ANSI code or hex value. It does nothing
+// name (e.g. "priority_high") to an ANSI code or hex value, and statusColor
+// does the same for each status name ("" = uncolored). It does nothing
 // after DisableColor so --no-color and NO_COLOR keep winning.
-func ApplyColors(color func(name string) string) {
+func ApplyColors(color func(name string) string, statuses []string, statusColor func(status string) string) {
 	if colorDisabled {
 		return
 	}
@@ -54,6 +55,12 @@ func ApplyColors(color func(name string) string) {
 	}
 	headerStyle = fg("list_header").Bold(true)
 	dimStyle = fg("dim")
+	statusStyles = map[string]lipgloss.Style{}
+	for _, s := range statuses {
+		if c := statusColor(s); c != "" {
+			statusStyles[s] = lipgloss.NewStyle().Foreground(lipgloss.Color(c))
+		}
+	}
 	priorityStyles = map[string]lipgloss.Style{
 		"critical": fg("priority_critical").Bold(true),
 		"high":     fg("priority_high"),

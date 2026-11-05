@@ -262,3 +262,24 @@ func TestTUIColorEnvExpansion(t *testing.T) {
 		}
 	}
 }
+
+func TestStatusColor(t *testing.T) {
+	cfg := NewDefault("x")
+	if got := cfg.StatusColor("done"); got != "34" {
+		t.Errorf("default done = %q", got)
+	}
+	if got := cfg.StatusColor("qa"); got != "" {
+		t.Errorf("custom status default = %q, want empty", got)
+	}
+	if got := cfg.ConfiguredStatusColor("done"); got != "" {
+		t.Errorf("configured done = %q, want empty", got)
+	}
+	t.Setenv("KBMD_QA", "5")
+	cfg.TUI.StatusColors = map[string]string{"qa": "${KBMD_QA}", "done": "2"}
+	if got := cfg.StatusColor("qa"); got != "5" {
+		t.Errorf("qa = %q", got)
+	}
+	if got := cfg.StatusColor("done"); got != "2" {
+		t.Errorf("done = %q", got)
+	}
+}
