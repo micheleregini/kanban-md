@@ -1,17 +1,14 @@
 version: 12
 board:
   name: Custom Colors Demo
-  description: Board whose colors come from the terminal palette (ANSI 0-15)
 tasks_dir: tasks
 statuses:
   - name: backlog
-    show_duration: false
   - name: todo
   - name: in-progress
   - name: review
   - name: qa
   - name: done
-    show_duration: false
 priorities:
   - low
   - medium
@@ -20,28 +17,21 @@ priorities:
 defaults:
   status: backlog
   priority: medium
-claim_timeout: 1h
 tui:
   title_lines: 2
-  card_fields:
-    - priority
-  # Nothing here is a fixed RGB or 256-color value: everything comes from the
-  # terminal theme. ANSI 0-15 are the theme's palette, `default` is its own
-  # foreground/background, `faint` dims text and `reverse` swaps foreground and
-  # background. The selected column header and the selected card share one
-  # selection color (active_header_bg and active_border, both ${KBMD_ACCENT}),
-  # so they always match. KBMD_ACCENT overrides it (e.g. "5"). status_colors
-  # is left unset so TUI column headers use just two colors: active and inactive.
   thick_card_border: true
+  # Only the terminal theme is used: ANSI 0-15 are the theme's palette,
+  # `default` is its own foreground/background, `faint` dims text. The selected
+  # column header and the selected card share one color (KBMD_ACCENT, default 4).
   colors:
-    column_header_fg: "default"
+    column_header_fg: 14 #"default"
     column_header_bg: "default"
     active_header_fg: "default"
     active_header_bg: "${KBMD_ACCENT:-4}"
+    active_border: "${KBMD_ACCENT:-4}"
     drop_target_fg: "default"
     drop_target_bg: "2"
     card_border: "8"
-    active_border: "${KBMD_ACCENT:-4}"
     blocked_border: "1"
     text: "default"
     dim: "default faint"
@@ -54,5 +44,5 @@ tui:
     tab_bg: "default"
     claim: "4"
     list_header: "default faint"
-    tag: "4"
+    tag: 14
 next_id: 8
