@@ -640,6 +640,18 @@ Avoid ANSI `3`, `6`, `7`, `8` and their bright variants for text where
 readability matters: many themes render them too light or too dark on one of the
 two backgrounds.
 
+#### Thicker card border
+
+Card borders are rounded. Set `tui.thick_card_border: true` for a heavy border
+with square corners (Unicode has no heavy rounded corners):
+
+```yaml
+tui:
+  thick_card_border: true
+```
+
+or `kanban-md config set tui.thick_card_border true`.
+
 Status colors are set per status name in `tui.status_colors` and apply to
 `list`/`show` and to the TUI column header text:
 

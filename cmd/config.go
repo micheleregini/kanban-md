@@ -190,6 +190,19 @@ func addExtendedConfigAccessors(accessors map[string]configAccessor) {
 	accessors["tui.age_thresholds"] = configAccessor{
 		get: func(c *config.Config) any { return c.TUI.AgeThresholds },
 	}
+	accessors["tui.thick_card_border"] = configAccessor{
+		get: func(c *config.Config) any { return c.TUI.ThickCardBorder },
+		set: func(c *config.Config, v string) error {
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				return clierr.Newf(clierr.InvalidInput,
+					"invalid tui.thick_card_border %q: must be true or false", v)
+			}
+			c.TUI.ThickCardBorder = b
+			return nil
+		},
+		writable: true,
+	}
 	accessors["tui.status_colors"] = configAccessor{
 		get: func(c *config.Config) any {
 			m := make(map[string]string, len(c.Statuses))

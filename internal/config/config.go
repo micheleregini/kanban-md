@@ -74,6 +74,8 @@ type TUIConfig struct {
 	// Colors overrides TUI colors by name (see DefaultTUIColors). Values are
 	// ANSI 256 codes ("62") or hex ("#5f5fd7"). Missing names use defaults.
 	Colors map[string]string `yaml:"colors,omitempty"`
+	// ThickCardBorder draws card borders with a heavy line.
+	ThickCardBorder bool `yaml:"thick_card_border,omitempty"`
 	// StatusColors colors a status by name in list/show output and, when set,
 	// in the TUI column header. Same value syntax as Colors.
 	StatusColors map[string]string `yaml:"status_colors,omitempty"`

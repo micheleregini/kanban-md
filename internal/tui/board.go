@@ -1457,8 +1457,9 @@ func applyColors(cfg *config.Config) {
 	columnHeaderStyle = header("column_header_fg", "column_header_bg")
 	activeColumnHeaderStyle = header("active_header_fg", "active_header_bg")
 	dropTargetColumnHeaderStyle = header("drop_target_fg", "drop_target_bg")
+	border := cardBorder(cfg)
 	card := func(borderName string) lipgloss.Style {
-		return lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
+		return lipgloss.NewStyle().Border(border).
 			BorderForeground(col(borderName)).Padding(0, 1).MarginBottom(0)
 	}
 	cardStyle = card("card_border")
@@ -1923,6 +1924,22 @@ func (b *Board) renderCard(t *task.Task, active bool, width int) string {
 	}
 
 	return style.Width(width - 2).Render(content) //nolint:mnd // border width
+}
+
+// thickCardBorder is a heavy border. Unicode has no heavy rounded corner
+// glyphs, so corners are square to keep the stroke weight uniform.
+var thickCardBorder = lipgloss.Border{
+	Top: "━", Bottom: "━", Left: "┃", Right: "┃",
+	TopLeft: "┏", TopRight: "┓", BottomLeft: "┗", BottomRight: "┛",
+}
+
+// cardBorder returns the card border: rounded, or heavy with square corners
+// when tui.thick_card_border is set.
+func cardBorder(cfg *config.Config) lipgloss.Border {
+	if cfg != nil && cfg.TUI.ThickCardBorder {
+		return thickCardBorder
+	}
+	return lipgloss.RoundedBorder()
 }
 
 func (b *Board) cardHeight(t *task.Task, width int) int {
