@@ -12,6 +12,7 @@ import (
 
 	"github.com/antopolskiy/kanban-md/internal/board"
 	"github.com/antopolskiy/kanban-md/internal/task"
+	"github.com/antopolskiy/kanban-md/internal/termcolor"
 )
 
 var (
@@ -51,14 +52,14 @@ func ApplyColors(color func(name string) string, statuses []string, statusColor 
 		return
 	}
 	fg := func(name string) lipgloss.Style {
-		return lipgloss.NewStyle().Foreground(lipgloss.Color(color(name)))
+		return termcolor.ParseSpec(color(name)).Apply(lipgloss.NewStyle())
 	}
 	headerStyle = fg("list_header").Bold(true)
 	dimStyle = fg("dim")
 	statusStyles = map[string]lipgloss.Style{}
 	for _, s := range statuses {
 		if c := statusColor(s); c != "" {
-			statusStyles[s] = lipgloss.NewStyle().Foreground(lipgloss.Color(c))
+			statusStyles[s] = termcolor.ParseSpec(c).Apply(lipgloss.NewStyle())
 		}
 	}
 	priorityStyles = map[string]lipgloss.Style{

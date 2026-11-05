@@ -23,6 +23,7 @@ import (
 	"github.com/antopolskiy/kanban-md/internal/config"
 	"github.com/antopolskiy/kanban-md/internal/filelock"
 	"github.com/antopolskiy/kanban-md/internal/task"
+	"github.com/antopolskiy/kanban-md/internal/termcolor"
 )
 
 // view represents the current screen state.
@@ -1438,45 +1439,49 @@ func init() { applyColors(nil) }
 // applyColors rebuilds the package-level styles using the colors from cfg
 // (tui.colors in config.yml). A nil cfg selects the defaults.
 func applyColors(cfg *config.Config) {
-	c := func(name string) lipgloss.Color {
+	spec := func(name string) termcolor.Spec {
 		if cfg == nil {
-			return lipgloss.Color(config.DefaultTUIColors[name])
+			return termcolor.ParseSpec(config.DefaultTUIColors[name])
 		}
-		return lipgloss.Color(cfg.TUIColor(name))
+		return termcolor.ParseSpec(cfg.TUIColor(name))
 	}
-	header := func(fg, bg string) lipgloss.Style {
-		return lipgloss.NewStyle().Bold(true).Foreground(c(fg)).Background(c(bg)).Padding(0, 1)
+	// fg applies a color (and its attributes, e.g. faint) as foreground.
+	fg := func(st lipgloss.Style, name string) lipgloss.Style { return spec(name).Apply(st) }
+	// col returns just the color, for backgrounds and borders.
+	col := func(name string) lipgloss.TerminalColor { return spec(name).Color }
+	header := func(fgName, bgName string) lipgloss.Style {
+		return fg(lipgloss.NewStyle().Bold(true), fgName).Background(col(bgName)).Padding(0, 1)
 	}
-	card := func(border string) lipgloss.Style {
-		return lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
-			BorderForeground(c(border)).Padding(0, 1).MarginBottom(0)
-	}
+	plain := lipgloss.NewStyle()
 
 	columnHeaderStyle = header("column_header_fg", "column_header_bg")
 	activeColumnHeaderStyle = header("active_header_fg", "active_header_bg")
 	dropTargetColumnHeaderStyle = header("drop_target_fg", "drop_target_bg")
+	card := func(borderName string) lipgloss.Style {
+		return lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
+			BorderForeground(col(borderName)).Padding(0, 1).MarginBottom(0)
+	}
 	cardStyle = card("card_border")
 	activeCardStyle = card("active_border")
 	blockedCardStyle = card("blocked_border")
-	statusBarStyle = lipgloss.NewStyle().Foreground(c("dim"))
-	statusShortcutStyle = lipgloss.NewStyle().Bold(true).Underline(true).Foreground(c("text"))
-	errorStyle = lipgloss.NewStyle().Foreground(c("error")).Bold(true)
+	statusBarStyle = fg(plain, "dim")
+	statusShortcutStyle = fg(plain.Bold(true).Underline(true), "text")
+	errorStyle = fg(plain.Bold(true), "error")
 	priorityStyles = map[string]lipgloss.Style{
-		"critical": lipgloss.NewStyle().Foreground(c("priority_critical")).Bold(true),
-		"high":     lipgloss.NewStyle().Foreground(c("priority_high")),
-		"medium":   lipgloss.NewStyle().Foreground(c("priority_medium")),
-		"low":      lipgloss.NewStyle().Foreground(c("priority_low")),
+		"critical": fg(plain.Bold(true), "priority_critical"),
+		"high":     fg(plain, "priority_high"),
+		"medium":   fg(plain, "priority_medium"),
+		"low":      fg(plain, "priority_low"),
 	}
-	dimStyle = lipgloss.NewStyle().Foreground(c("dim"))
+	dimStyle = fg(plain, "dim")
 
 	// Narrow-mode tab strip styles (no padding — tab hit rects are computed
 	// from rendered label widths).
-	narrowTabStyle = lipgloss.NewStyle().Foreground(c("tab_fg")).Background(c("tab_bg"))
-	activeNarrowTabStyle = lipgloss.NewStyle().Bold(true).
-		Foreground(c("active_header_fg")).Background(c("active_header_bg"))
-	claimStyle = lipgloss.NewStyle().Foreground(c("claim")).Bold(true)
+	narrowTabStyle = fg(plain, "tab_fg").Background(col("tab_bg"))
+	activeNarrowTabStyle = fg(plain.Bold(true), "active_header_fg").Background(col("active_header_bg"))
+	claimStyle = fg(plain.Bold(true), "claim")
 	dialogStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
-		BorderForeground(c("active_border")).Padding(dialogPadY, dialogPadX)
+		BorderForeground(col("active_border")).Padding(dialogPadY, dialogPadX)
 }
 
 // ageStyle returns a lipgloss style for the duration label based on the
@@ -1839,7 +1844,7 @@ func (b *Board) renderColumn(colIdx int, col column, width int) (string, []cardT
 	default:
 		style := columnHeaderStyle
 		if c := b.cfg.ConfiguredStatusColor(col.status); c != "" {
-			style = style.Foreground(lipgloss.Color(c))
+			style = termcolor.ParseSpec(c).Apply(style)
 		}
 		header = style.Width(width).Render(headerText)
 	}
