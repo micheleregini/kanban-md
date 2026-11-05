@@ -617,6 +617,11 @@ Names (default): `column_header_fg` (252), `column_header_bg` (236),
 `priority_low` (242), `tab_fg` (250), `tab_bg` (238), `claim` (44).
 Set one with `kanban-md config set tui.colors.active_border "#5f5fd7"`.
 
+Values can reference environment variables (`$VAR`, `${VAR}` or
+`${VAR:-fallback}`), expanded at startup and never written back. Use ANSI codes
+`0`-`15` to follow the terminal's own palette. If a value expands to an empty
+string, the default is used.
+
 ### `context`
 
 Generate a markdown summary of the board state for embedding in context files (e.g. `CLAUDE.md`, `AGENTS.md`).

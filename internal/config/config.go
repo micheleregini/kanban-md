@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"go.yaml.in/yaml/v3"
@@ -76,11 +77,27 @@ type TUIConfig struct {
 }
 
 // TUIColor returns the configured color for name, falling back to the default.
+// Configured values may reference environment variables as $VAR, ${VAR} or
+// ${VAR:-fallback}; if the result is empty the default color is used.
 func (c *Config) TUIColor(name string) string {
-	if v := c.TUI.Colors[name]; v != "" {
+	if v := expandColorEnv(c.TUI.Colors[name]); v != "" {
 		return v
 	}
 	return DefaultTUIColors[name]
+}
+
+// expandColorEnv expands environment variables in a color value. It supports
+// the ${VAR:-fallback} form in addition to what os.Expand handles.
+func expandColorEnv(v string) string {
+	return os.Expand(v, func(key string) string {
+		if name, fallback, ok := strings.Cut(key, ":-"); ok {
+			if val := os.Getenv(name); val != "" {
+				return val
+			}
+			return fallback
+		}
+		return os.Getenv(key)
+	})
 }
 
 // StatusConfig defines a status column and its enforcement rules.

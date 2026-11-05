@@ -242,3 +242,23 @@ func TestTUIColorDefaultsAndOverride(t *testing.T) {
 		t.Error("unknown color name accepted")
 	}
 }
+
+func TestTUIColorEnvExpansion(t *testing.T) {
+	t.Setenv("KBMD_TEST_COLOR", "#123456")
+	t.Setenv("KBMD_TEST_EMPTY", "")
+	cfg := NewDefault("x")
+	cases := []struct{ in, want string }{
+		{"$KBMD_TEST_COLOR", "#123456"},
+		{"${KBMD_TEST_COLOR}", "#123456"},
+		{"${KBMD_TEST_EMPTY:-4}", "4"},
+		{"${KBMD_TEST_UNSET:-5}", "5"},
+		{"${KBMD_TEST_COLOR:-5}", "#123456"},
+		{"${KBMD_TEST_UNSET}", "62"}, // empty -> default
+	}
+	for _, tc := range cases {
+		cfg.TUI.Colors = map[string]string{"active_border": tc.in}
+		if got := cfg.TUIColor("active_border"); got != tc.want {
+			t.Errorf("TUIColor(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+}
