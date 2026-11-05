@@ -1426,6 +1426,7 @@ var (
 	narrowTabStyle              lipgloss.Style
 	activeNarrowTabStyle        lipgloss.Style
 	claimStyle                  lipgloss.Style
+	tagStyle                    lipgloss.Style
 	dialogStyle                 lipgloss.Style
 
 	detailLabelStyle = lipgloss.NewStyle().Bold(true).Width(14) //nolint:mnd // label column width
@@ -1481,6 +1482,7 @@ func applyColors(cfg *config.Config) {
 	narrowTabStyle = fg(plain, "tab_fg").Background(col("tab_bg"))
 	activeNarrowTabStyle = fg(plain.Bold(true), "active_header_fg").Background(col("active_header_bg"))
 	claimStyle = fg(plain.Bold(true), "claim")
+	tagStyle = fg(plain, "tag")
 	dialogStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
 		BorderForeground(col("active_border")).Padding(dialogPadY, dialogPadX)
 }
@@ -1974,7 +1976,7 @@ func (b *Board) cardContentLines(t *task.Task, width int) []string {
 			}
 		}
 		if tagStr != "" {
-			details = append(details, dimStyle.Render(tagStr))
+			details = append(details, tagStyle.Render(tagStr))
 		}
 	}
 
