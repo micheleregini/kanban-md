@@ -130,6 +130,8 @@ func loadConfig() (*config.Config, error) {
 	printWarnings(report.Warnings)
 	printConsistencyRepairs(report.Repairs)
 
+	output.ApplyColors(cfg.TUIColor)
+
 	return cfg, nil
 }
 

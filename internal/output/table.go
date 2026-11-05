@@ -40,8 +40,33 @@ var (
 	claimStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("44")).Bold(true)
 )
 
+var colorDisabled bool
+
+// ApplyColors rebuilds the table styles using color, which maps a tui.colors
+// name (e.g. "priority_high") to an ANSI code or hex value. It does nothing
+// after DisableColor so --no-color and NO_COLOR keep winning.
+func ApplyColors(color func(name string) string) {
+	if colorDisabled {
+		return
+	}
+	fg := func(name string) lipgloss.Style {
+		return lipgloss.NewStyle().Foreground(lipgloss.Color(color(name)))
+	}
+	headerStyle = fg("list_header").Bold(true)
+	dimStyle = fg("dim")
+	priorityStyles = map[string]lipgloss.Style{
+		"critical": fg("priority_critical").Bold(true),
+		"high":     fg("priority_high"),
+		"medium":   fg("priority_medium"),
+		"low":      fg("priority_low"),
+	}
+	tagStyle = fg("tag")
+	claimStyle = fg("claim").Bold(true)
+}
+
 // DisableColor strips all styling from table output.
 func DisableColor() {
+	colorDisabled = true
 	headerStyle = lipgloss.NewStyle()
 	dimStyle = lipgloss.NewStyle()
 	statusStyles = map[string]lipgloss.Style{}

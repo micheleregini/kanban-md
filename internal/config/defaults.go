@@ -80,6 +80,9 @@ var (
 		"tab_fg":            "250",
 		"tab_bg":            "238",
 		"claim":             "44",
+		// Used by table output (list, show) only.
+		"list_header": "244",
+		"tag":         "110",
 	}
 
 	// DefaultClasses defines the default classes of service.

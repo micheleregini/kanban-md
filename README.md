@@ -622,6 +622,10 @@ Values can reference environment variables (`$VAR`, `${VAR}` or
 `0`-`15` to follow the terminal's own palette. If a value expands to an empty
 string, the default is used.
 
+`list`, `show` and other table output use the same names for priorities, `dim`
+and `claim`, plus `list_header` (244) and `tag` (110), so both views stay
+consistent. `--no-color` and `NO_COLOR` disable them as before.
+
 ### `context`
 
 Generate a markdown summary of the board state for embedding in context files (e.g. `CLAUDE.md`, `AGENTS.md`).

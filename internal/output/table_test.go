@@ -635,3 +635,13 @@ func TestGroupedTableEmpty(t *testing.T) {
 		t.Errorf("GroupedTable empty output to writer = %q, want empty", buf.String())
 	}
 }
+
+func TestApplyColorsOverridesPriorityStyle(t *testing.T) {
+	old, oldDisabled := priorityStyles, colorDisabled
+	defer func() { priorityStyles, colorDisabled = old, oldDisabled }()
+	colorDisabled = false
+	ApplyColors(func(string) string { return "33" })
+	if got := priorityStyles["critical"].GetForeground(); got != lipgloss.Color("33") {
+		t.Errorf("critical foreground = %v, want 33", got)
+	}
+}
