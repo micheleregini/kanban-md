@@ -156,6 +156,7 @@ func NewBoard(cfg *config.Config) *Board {
 		sortField:        "priority",
 		sortReverse:      true,
 	}
+	applyColors(cfg)
 	b.loadTasks()
 	return b
 }
@@ -1410,85 +1411,73 @@ func tickCmd() tea.Cmd {
 // --- Styles ---
 
 var (
-	columnHeaderStyle = lipgloss.NewStyle().
-				Bold(true).
-				Foreground(lipgloss.Color("252")).
-				Background(lipgloss.Color("236")).
-				Padding(0, 1)
-
-	activeColumnHeaderStyle = lipgloss.NewStyle().
-				Bold(true).
-				Foreground(lipgloss.Color("230")).
-				Background(lipgloss.Color("62")).
-				Padding(0, 1)
-
-	dropTargetColumnHeaderStyle = lipgloss.NewStyle().
-					Bold(true).
-					Foreground(lipgloss.Color("232")).
-					Background(lipgloss.Color("42")).
-					Padding(0, 1)
-
-	cardStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("240")).
-			Padding(0, 1).
-			MarginBottom(0)
-
-	activeCardStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("62")).
-			Padding(0, 1).
-			MarginBottom(0)
-
-	blockedCardStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(lipgloss.Color("196")).
-				Padding(0, 1).
-				MarginBottom(0)
-
-	statusBarStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("241"))
-
-	statusShortcutStyle = lipgloss.NewStyle().
-				Bold(true).
-				Underline(true).
-				Foreground(lipgloss.Color("252"))
-
-	errorStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("196")).
-			Bold(true)
-
-	priorityStyles = map[string]lipgloss.Style{
-		"critical": lipgloss.NewStyle().Foreground(lipgloss.Color("196")).Bold(true),
-		"high":     lipgloss.NewStyle().Foreground(lipgloss.Color("208")),
-		"medium":   lipgloss.NewStyle().Foreground(lipgloss.Color("226")),
-		"low":      lipgloss.NewStyle().Foreground(lipgloss.Color("242")),
-	}
-
-	dimStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-
-	// Narrow-mode tab strip styles (no padding — tab hit rects are computed
-	// from rendered label widths).
-	narrowTabStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("250")).
-			Background(lipgloss.Color("238"))
-	activeNarrowTabStyle = lipgloss.NewStyle().
-				Bold(true).
-				Foreground(lipgloss.Color("230")).
-				Background(lipgloss.Color("62"))
-
-	claimStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("44")).Bold(true)
+	columnHeaderStyle           lipgloss.Style
+	activeColumnHeaderStyle     lipgloss.Style
+	dropTargetColumnHeaderStyle lipgloss.Style
+	cardStyle                   lipgloss.Style
+	activeCardStyle             lipgloss.Style
+	blockedCardStyle            lipgloss.Style
+	statusBarStyle              lipgloss.Style
+	statusShortcutStyle         lipgloss.Style
+	errorStyle                  lipgloss.Style
+	priorityStyles              map[string]lipgloss.Style
+	dimStyle                    lipgloss.Style
+	narrowTabStyle              lipgloss.Style
+	activeNarrowTabStyle        lipgloss.Style
+	claimStyle                  lipgloss.Style
+	dialogStyle                 lipgloss.Style
 
 	detailLabelStyle = lipgloss.NewStyle().Bold(true).Width(14) //nolint:mnd // label column width
 
 	dialogPadY = 1
 	dialogPadX = 2
-
-	dialogStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("62")).
-			Padding(dialogPadY, dialogPadX)
 )
+
+func init() { applyColors(nil) }
+
+// applyColors rebuilds the package-level styles using the colors from cfg
+// (tui.colors in config.yml). A nil cfg selects the defaults.
+func applyColors(cfg *config.Config) {
+	c := func(name string) lipgloss.Color {
+		if cfg == nil {
+			return lipgloss.Color(config.DefaultTUIColors[name])
+		}
+		return lipgloss.Color(cfg.TUIColor(name))
+	}
+	header := func(fg, bg string) lipgloss.Style {
+		return lipgloss.NewStyle().Bold(true).Foreground(c(fg)).Background(c(bg)).Padding(0, 1)
+	}
+	card := func(border string) lipgloss.Style {
+		return lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
+			BorderForeground(c(border)).Padding(0, 1).MarginBottom(0)
+	}
+
+	columnHeaderStyle = header("column_header_fg", "column_header_bg")
+	activeColumnHeaderStyle = header("active_header_fg", "active_header_bg")
+	dropTargetColumnHeaderStyle = header("drop_target_fg", "drop_target_bg")
+	cardStyle = card("card_border")
+	activeCardStyle = card("active_border")
+	blockedCardStyle = card("blocked_border")
+	statusBarStyle = lipgloss.NewStyle().Foreground(c("dim"))
+	statusShortcutStyle = lipgloss.NewStyle().Bold(true).Underline(true).Foreground(c("text"))
+	errorStyle = lipgloss.NewStyle().Foreground(c("error")).Bold(true)
+	priorityStyles = map[string]lipgloss.Style{
+		"critical": lipgloss.NewStyle().Foreground(c("priority_critical")).Bold(true),
+		"high":     lipgloss.NewStyle().Foreground(c("priority_high")),
+		"medium":   lipgloss.NewStyle().Foreground(c("priority_medium")),
+		"low":      lipgloss.NewStyle().Foreground(c("priority_low")),
+	}
+	dimStyle = lipgloss.NewStyle().Foreground(c("dim"))
+
+	// Narrow-mode tab strip styles (no padding — tab hit rects are computed
+	// from rendered label widths).
+	narrowTabStyle = lipgloss.NewStyle().Foreground(c("tab_fg")).Background(c("tab_bg"))
+	activeNarrowTabStyle = lipgloss.NewStyle().Bold(true).
+		Foreground(c("active_header_fg")).Background(c("active_header_bg"))
+	claimStyle = lipgloss.NewStyle().Foreground(c("claim")).Bold(true)
+	dialogStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
+		BorderForeground(c("active_border")).Padding(dialogPadY, dialogPadX)
+}
 
 // ageStyle returns a lipgloss style for the duration label based on the
 // configured age thresholds. Thresholds are walked in reverse order (longest

@@ -592,8 +592,30 @@ Available keys:
 | `tui.hide_empty_columns` | yes | Hide columns with zero tasks in TUI |
 | `tui.narrow_threshold` | yes | Terminal width below which the single-column view is used; 0 is automatic |
 | `tui.age_thresholds` | no | TUI age color thresholds |
+| `tui.colors` | no | TUI color overrides (see below) |
+| `tui.colors.<name>` | yes | Single TUI color; empty value restores the default |
 | `next_id` | no | Next task ID |
 | `version` | no | Config schema version |
+
+#### TUI colors
+
+Every TUI color can be overridden under `tui.colors` in `config.yml`, as an ANSI
+256 code (`"62"`) or a hex value (`"#5f5fd7"`). Missing names keep the defaults.
+
+```yaml
+tui:
+  colors:
+    active_border: "#5f5fd7"
+    priority_high: "208"
+```
+
+Names (default): `column_header_fg` (252), `column_header_bg` (236),
+`active_header_fg` (230), `active_header_bg` (62), `drop_target_fg` (232),
+`drop_target_bg` (42), `card_border` (240), `active_border` (62, also dialogs),
+`blocked_border` (196), `text` (252), `dim` (241), `error` (196),
+`priority_critical` (196), `priority_high` (208), `priority_medium` (226),
+`priority_low` (242), `tab_fg` (250), `tab_bg` (238), `claim` (44).
+Set one with `kanban-md config set tui.colors.active_border "#5f5fd7"`.
 
 ### `context`
 

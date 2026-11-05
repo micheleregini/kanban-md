@@ -58,6 +58,30 @@ var (
 		{After: "168h", Color: "196"}, // red (1 week)
 	}
 
+	// DefaultTUIColors defines the default TUI colors (ANSI 256 codes or hex
+	// values). Keys are the valid names for tui.colors in config.yml.
+	DefaultTUIColors = map[string]string{
+		"column_header_fg":  "252",
+		"column_header_bg":  "236",
+		"active_header_fg":  "230",
+		"active_header_bg":  "62",
+		"drop_target_fg":    "232",
+		"drop_target_bg":    "42",
+		"card_border":       "240",
+		"active_border":     "62",
+		"blocked_border":    "196",
+		"text":              "252",
+		"dim":               "241",
+		"error":             "196",
+		"priority_critical": "196",
+		"priority_high":     "208",
+		"priority_medium":   "226",
+		"priority_low":      "242",
+		"tab_fg":            "250",
+		"tab_bg":            "238",
+		"claim":             "44",
+	}
+
 	// DefaultClasses defines the default classes of service.
 	DefaultClasses = []ClassConfig{
 		{Name: "expedite", WIPLimit: 1, BypassColumnWIP: true},

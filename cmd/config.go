@@ -190,6 +190,32 @@ func addExtendedConfigAccessors(accessors map[string]configAccessor) {
 	accessors["tui.age_thresholds"] = configAccessor{
 		get: func(c *config.Config) any { return c.TUI.AgeThresholds },
 	}
+	accessors["tui.colors"] = configAccessor{
+		get: func(c *config.Config) any {
+			m := make(map[string]string, len(config.DefaultTUIColors))
+			for name := range config.DefaultTUIColors {
+				m[name] = c.TUIColor(name)
+			}
+			return m
+		},
+	}
+	for name := range config.DefaultTUIColors {
+		accessors["tui.colors."+name] = configAccessor{
+			get: func(c *config.Config) any { return c.TUIColor(name) },
+			set: func(c *config.Config, v string) error {
+				if v == "" {
+					delete(c.TUI.Colors, name)
+					return nil
+				}
+				if c.TUI.Colors == nil {
+					c.TUI.Colors = map[string]string{}
+				}
+				c.TUI.Colors[name] = v
+				return nil
+			},
+			writable: true,
+		}
+	}
 }
 
 // allConfigKeys returns config keys in display order.

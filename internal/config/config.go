@@ -70,6 +70,17 @@ type TUIConfig struct {
 	// NarrowThreshold is the terminal width below which the TUI renders a
 	// single column at a time; 0 = automatic, 1 effectively disables it.
 	NarrowThreshold int `yaml:"narrow_threshold,omitempty"`
+	// Colors overrides TUI colors by name (see DefaultTUIColors). Values are
+	// ANSI 256 codes ("62") or hex ("#5f5fd7"). Missing names use defaults.
+	Colors map[string]string `yaml:"colors,omitempty"`
+}
+
+// TUIColor returns the configured color for name, falling back to the default.
+func (c *Config) TUIColor(name string) string {
+	if v := c.TUI.Colors[name]; v != "" {
+		return v
+	}
+	return DefaultTUIColors[name]
 }
 
 // StatusConfig defines a status column and its enforcement rules.
@@ -278,6 +289,14 @@ func (c *Config) validateTUI() error {
 	}
 	if c.TUI.NarrowThreshold < 0 {
 		return fmt.Errorf("%w: tui.narrow_threshold must be >= 0", ErrInvalid)
+	}
+	for name, v := range c.TUI.Colors {
+		if _, ok := DefaultTUIColors[name]; !ok {
+			return fmt.Errorf("%w: tui.colors: unknown color %q", ErrInvalid, name)
+		}
+		if v == "" {
+			return fmt.Errorf("%w: tui.colors.%s must not be empty", ErrInvalid, name)
+		}
 	}
 	for i, at := range c.TUI.AgeThresholds {
 		if _, err := time.ParseDuration(at.After); err != nil {

@@ -224,3 +224,21 @@ func TestStatusShowDuration(t *testing.T) {
 		t.Error("unknown status should default to ShowDuration=true")
 	}
 }
+
+func TestTUIColorDefaultsAndOverride(t *testing.T) {
+	cfg := NewDefault("x")
+	if got := cfg.TUIColor("active_border"); got != "62" {
+		t.Errorf("default active_border = %q, want 62", got)
+	}
+	cfg.TUI.Colors = map[string]string{"active_border": "#ff0000"}
+	if got := cfg.TUIColor("active_border"); got != "#ff0000" {
+		t.Errorf("override active_border = %q", got)
+	}
+	if err := cfg.validateTUI(); err != nil {
+		t.Errorf("valid colors rejected: %v", err)
+	}
+	cfg.TUI.Colors = map[string]string{"nope": "1"}
+	if err := cfg.validateTUI(); err == nil {
+		t.Error("unknown color name accepted")
+	}
+}
